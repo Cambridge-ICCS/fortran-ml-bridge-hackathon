@@ -2,7 +2,16 @@ import pytest
 import subprocess
 import os
 
-def test_link(fc='gfortran', file='test'):
+@pytest.fixture
+def tf_lib():
+    return subprocess.run(["make", "-C", "../src"], check=True)
+
+@pytest.fixture
+def my_model(tf_lib):
+	subprocess.run(["process_model", "../my_model/", "-o", "testf.f90"])
+	subprocess.run(["gfortran", "-c", "-I", "../src/", "testf.f90"], check=True)
+
+def test_link(my_model, fc='gfortran', file='test'):
     """ 
     Test to check that generated FORTRAN object can be linked with the TF-fortran library
     """ 
